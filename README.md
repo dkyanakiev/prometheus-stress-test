@@ -16,6 +16,8 @@ The full stack chart for `Loki + Grafana + Prometheus + Promtail` is really rest
 
 ## Managing the GKE cluster
 `./cluster.sh <cluster-name> <project-name>` - To build,delete or get credentials for your cluster 
+    - `cluster-name` - Name you want to give to the new GKE cluster
+    - `project-name` - Name of the google project you wish to assign the GKE cluster
 Example: 
 `./cluster.sh test-cluster-demo automation-test-demo`
 
