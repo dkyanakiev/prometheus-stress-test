@@ -1,0 +1,80 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cadvisor
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: cadvisor
+  template:
+    metadata:
+      labels:
+        name: cadvisor
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/scrape_port: '8080'
+    spec:
+      tolerations:
+       - operator: Exists   
+      restartPolicy: Always
+      hostNetwork: true
+      containers:
+        - name: cadvisor
+          image: google/cadvisor:v0.33.0
+          imagePullPolicy: Always
+          securityContext:
+            privileged: true
+          args:
+          - "--disable_metrics=tcp,udp,disk"
+          - "--enable_load_reader=true"
+          - "--docker_only=false"
+          - "-max_procs=0"
+          - "-logtostderr"
+          - "-v=5"
+          volumeMounts:
+          - name: rootfs
+            mountPath: /rootfs
+            readOnly: true
+          - name: var-run
+            mountPath: /var/run
+          - name: sys
+            mountPath: /sys
+            readOnly: true
+          - name: docker
+            mountPath: /var/lib/docker
+            readOnly: true
+          - name: disk
+            mountPath: /dev/disk
+          - name: docker-sock
+            mountPath: /var/run/docker.sock
+            readOnly: true
+          ports:
+          - name: http
+            containerPort: 8080
+            #hostPort: 8888
+            protocol: TCP
+      volumes:
+        - name: rootfs
+          hostPath:
+            path: /
+        - name: var-run
+          hostPath:
+            path: /var/run
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: docker
+          hostPath:
+            path: /var/lib/docker
+        - name: disk
+          hostPath:
+            path: /dev/disk
+        - name: kmsg
+          hostPath:
+            path: /dev/kmsg
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock

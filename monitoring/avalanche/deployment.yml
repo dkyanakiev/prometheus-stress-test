@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: avalanche
+    labels:
+        system: freshtracks
+        name: avalanche
+spec:
+    replicas: 5
+    selector:
+        matchLabels:
+          name: avalanche
+    strategy:
+        rollingUpdate:
+            maxSurge: 100%
+            maxUnavailable: 1
+        type: RollingUpdate
+    template:
+        metadata:
+            annotations:
+                prometheus.io/scrape: 'true'
+            labels:
+                system: freshtracks
+                name: avalanche
+        spec:
+            containers:
+            - name: avalanche
+              image: quay.io/freshtracks.io/avalanche
+              imagePullPolicy: IfNotPresent
+              args:
+              - --metric-count=1000
+              - --series-count=20
+              - --port=9001
+              ports:
+              -  containerPort: 9001
+                 protocol: TCP
+                 name: metrics
+                 
